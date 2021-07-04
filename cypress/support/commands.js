@@ -1,22 +1,4 @@
-// ***********************************************************
-// This example support/index.js is processed and
-// loaded automatically before your test files.
-//
-// This is a great place to put global configuration and
-// behavior that modifies Cypress.
-//
-// You can change the location of this file or turn off
-// automatically serving support files with the
-// 'supportFile' configuration option.
-//
-// You can read more here:
-// https://on.cypress.io/configuration
-// ***********************************************************
-
-// Import commands.js using ES2015 syntax:
-import './commands'
-
-// Alternatively you can use CommonJS syntax:// ***********************************************
+// ***********************************************
 // This example commands.js shows you how to
 // create various custom commands and overwrite
 // existing commands.
@@ -49,9 +31,9 @@ Cypress.Commands.add("createOng", () => {
         body: {
             name: "Gatos queridos",
             email: "gatos@mail.com",
-            whatsapp: "619999999999",
-            city: "valparaiso",
-            uf: "go"    
+            whatsapp: "519999999999",
+            city: "Porto Alegre",
+            uf: "RS"    
         }
     }).then(response => {
         expect(response.body.id).is.not.null;
@@ -60,4 +42,32 @@ Cypress.Commands.add("createOng", () => {
         Cypress.env('createdOngId', response.body.id);
     });
 })
-// require('./commands')
+
+Cypress.Commands.add("createNewIncident", () => {
+    Cypress.env('createdOngId')
+    cy.request({
+        method: 'POST',
+        url: 'http://localhost:3333/incidents',
+        headers: { 'Authorization': `${ Cypress.env('createdOngId') }`, },
+        body: {
+            title: "Animal com fome",
+            description: "Animal precisa de alimento para viver.",
+            value: "250"
+        }
+    }).then(response => {
+        expect(response.body.id).is.not.null;
+        cy.log(response.body.id);
+
+        Cypress.env('createdIncidentId', response.body.id);
+    });
+})
+
+Cypress.Commands.add("login", () => {
+    cy.visit('http://localhost:3000/profile', {
+        onBeforeLoad: (win) => {
+            win.localStorage.clear();
+            win.localStorage.setItem('ongId', Cypress.env('createdOngId'));
+            win.localStorage.setItem('ongName', 'Gatos queridos');
+        }
+    });
+})
